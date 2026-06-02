@@ -41,16 +41,8 @@ Content-Type: application/problem+json
 
 The `detail` text depends on which path produced the error:
 
-- Body could not be read: `"Our server idempotency store is unavailable."`
-- Claim failed: `"Our server failed parsing the request body."`
-
-!!! warning "Detail wording discrepancy"
-    In the current library source these two `detail` strings are effectively
-    swapped relative to their cause: the body-read failure reports the store as
-    unavailable, while the claim failure reports a body-parsing problem. The
-    `type`, `title`, and `500` status are correct and stable; treat the `detail`
-    wording as informational only and rely on the status and `type` to classify
-    the error.
+- Claim failed (store unavailable): `"Our server idempotency store is unavailable."`
+- Body could not be read: `"Our server failed parsing the request body."`
 
 ## What the client should do
 

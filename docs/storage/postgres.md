@@ -94,6 +94,9 @@ A background goroutine calls `Sweep` every 5 minutes, running
 reclaimed lazily by the `Claim` upsert described above. `Sweep` is exported, so
 you can also run it on your own schedule.
 
+The repository's `pg/schema.sql` reference file contains the same schema and can
+also be applied directly.
+
 ## Cleanup
 
 `PostgresStore` has a `Close()` method that stops the sweep goroutine and closes
@@ -104,10 +107,3 @@ store, err := pg.New(connStr, 24*time.Hour, 5*time.Minute)
 // ...
 defer store.Close()
 ```
-
-!!! warning "Schema file discrepancy"
-    The repository's `pg/schema.sql` reference file has a stray trailing comma
-    after `expiryTime TIMESTAMPTZ NOT NULL,`, which is invalid SQL and will not
-    run as-is. The authoritative schema is the one embedded in `pg.RunMigration`
-    (shown above), which has no trailing comma. Use `RunMigration`, or the SQL
-    above, rather than executing `schema.sql` directly.
