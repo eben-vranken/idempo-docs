@@ -42,24 +42,28 @@ handler untouched.
 ### Request lifecycle
 
 ```
-                       request with Idempotency-Key
-                                   │
-                                   ▼
-                        ┌────────────────────┐
-                        │  Claim(key, hash)  │   atomic
-                        └────────────────────┘
-                                   │
-        ┌──────────────┬───────────┼───────────┬──────────────┐
-        ▼              ▼           ▼            ▼              │
-     new          completed     pending     conflict          │
-        │              │           │            │             │
-   run handler    replay stored  409 Conflict  422            │
-        │          response                Unprocessable      │
-        ▼          + Idempotency-           Entity             │
-   store response  Replayed: true                             │
-   (Complete) or                                              │
-   release (Abandon)                                          │
+              request with Idempotency-Key
+                            │
+                            ▼
+                ┌───────────────────────┐
+                │   Claim(key, hash)     │
+                └───────────────────────┘
+                            │
+        ┌─────────┬─────────┴─────────┬─────────┐
+        ▼         ▼                   ▼         ▼
+       new     completed           pending   conflict
+        │         │                   │         │
+        ▼         ▼                   ▼         ▼
+       run      replay               409       422
+     handler   response           Conflict  Unprocessable
+                                                Entity
 ```
+
+- **new** → run the handler, then store the response (`Complete`) or release
+  the claim (`Abandon`).
+- **completed** → replay the stored response with `Idempotency-Replayed: true`.
+- **pending** → `409 Conflict`.
+- **conflict** → `422 Unprocessable Entity`.
 
 The two terminal outcomes for a winning claim:
 
