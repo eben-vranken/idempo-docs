@@ -41,23 +41,8 @@ handler untouched.
 
 ### Request lifecycle
 
-```
-              request with Idempotency-Key
-                            │
-                            ▼
-                ┌───────────────────────┐
-                │   Claim(key, hash)     │
-                └───────────────────────┘
-                            │
-        ┌─────────┬─────────┴─────────┬─────────┐
-        ▼         ▼                   ▼         ▼
-       new     completed           pending   conflict
-        │         │                   │         │
-        ▼         ▼                   ▼         ▼
-       run      replay               409       422
-     handler   response           Conflict  Unprocessable
-                                                Entity
-```
+
+<img alt="lifecycle diagram" src=".\idempo-drawio.png">
 
 - **new** → run the handler, then store the response (`Complete`) or release
   the claim (`Abandon`).
